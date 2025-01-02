@@ -1,0 +1,47 @@
+Kafka
+
+Architecture -> 
+                     Zookeeper --> used to monitor kafka cluster 
+                         ^         stores kafka config in key value pairs
+                         |         stores broker alive/dead status of brokers
+                         |
+                         |
+Producer -provide-> Kafka Cluster -consume-> Consumer
+
+Producer
+Produce msg to topics
+Can provide directly to topic(to each partition) or to a particular partition itself
+
+Consumer
+Consume the data
+Directly from the topic or from a particular partition
+Associated with a consumer group also only 1
+Consumer groups consists of consumers consuming same type of data performing type of execution                     
+
+Kafka cluster
+
+consists of multiple brokers present parallel to each other
+each broker consists of multiple topics parallel to each other
+each topic has multiple partitions parallel to each other
+
+Brokers/Kafka_servers
+
+Maintain and manage the cluster
+Manages the consumer offset which helps in delivering he right msg to right consumer
+
+
+Topics 
+
+Stream of data of a particular type
+Name being only unique identifier
+consists 2 properties:
+
+Partitions -> split the data | records here are ordered and immutable | each record has it's unique offset |
+Replication -> copy the data | only used when the partition is down | stored in diff broker as of the partition|
+
+
+Features of kafka:
+
+Provides horizontal scaling due to addition of new brokers within cluster
+Provides fault tolerance due to the feature of replication
+Provides high throughput -> no of msgs accepting/relieving per sec provides for both producer and consumer

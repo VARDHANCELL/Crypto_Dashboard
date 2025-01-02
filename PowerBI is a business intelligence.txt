@@ -1,0 +1,8 @@
+PowerBI is a business intelligence tool which cleans the data for visualization of the data
+
+Components
+power query -> etl too used for cleaning the data
+power pivot -> used to create relation between multiple data sources
+power view -> used to visualize data using many charts and graphs
+powerbi service -> used by users to communicate to each other via the report
+
