@@ -3,6 +3,10 @@ from data_fetcher import fetch_data_and_send_to_kafka  # used to work with json 
 import config
 import time
 
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
+
+
 
 def main():
     # an object (of the kafkaproducer class) will be used to send data to kafka topic 

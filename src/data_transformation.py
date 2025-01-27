@@ -1,56 +1,56 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, from_json
-from pyspark.sql.types import StructType, StructField, StringType, DoubleType
+from pyspark.sql.functions import col, from_json, explode, regexp_replace
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType, ArrayType
 
 # Initialize Spark session
 spark = SparkSession.builder \
     .appName("CryptoDataTransformation") \
     .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2") \
-    .config("spark.jars", "C:\mysql\mysql-connector-j-9.0.0\mysql-connector-j-9.0.0\mysql-connector-j-9.0.0.jar") \
+    .config("spark.jars", "file:///C:/mysql/mysql-connector-j-9.0.0/mysql-connector-j-9.0.0/mysql-connector-j-9.0.0.jar") \
     .getOrCreate()
 
-# Define schema for the Kafka data
-schema = StructType([
-    StructField("id", StringType(), False),
-    StructField("symbol", StringType(), True),
-    StructField("name", StringType(), True),
-    StructField("current_price", DoubleType(), True),
-    StructField("market_cap", DoubleType(), True),
-    StructField("total_volume", DoubleType(), True)
-])
+# Define schema for Kafka data
+schema = ArrayType(
+    StructType([
+        StructField("id", StringType(), True),
+        StructField("symbol", StringType(), True),
+        StructField("name", StringType(), True),
+        StructField("current_price", DoubleType(), True),
+        StructField("market_cap", DoubleType(), True),
+        StructField("total_volume", DoubleType(), True),
+    ])
+)
 
 # Read data from Kafka
-df = spark.readStream \
+kafka_stream = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "localhost:9092") \
     .option("subscribe", "etl_topic") \
-    .load() \
-    .selectExpr("CAST(value AS STRING) as json_value") \
-    .select(from_json(col("json_value"), schema).alias("data")) \
-    .select("data.*")
+    .option("startingOffsets", "earliest") \
+    .load()
 
-# Function to write DataFrame to MySQL
-def write_to_mysql(batch_df, batch_id):
-    print("Batch ID:", batch_id)
-    # Debugging: Show the first few rows of the DataFrame
-    print("Batch Data:")
-    batch_df.show(truncate=False)
-    
-    # Check schema
-    print("Schema:")
-    batch_df.printSchema()
-
-    # Ensure the DataFrame columns match the MySQL table schema
-    batch_df = batch_df.select(
-        col("id"),
-        col("symbol"),
-        col("name"),
-        col("current_price"),
-        col("market_cap"),
-        col("total_volume")
+# Parse and transform data
+parsed_data = kafka_stream \
+    .selectExpr("CAST(value AS STRING) as value") \
+    .withColumn("cleaned_value", regexp_replace(col("value"), "^b'|'$", "")) \
+    .withColumn("parsed_json", from_json(col("cleaned_value"), schema)) \
+    .withColumn("cryptos", explode(col("parsed_json"))) \
+    .select(
+        col("cryptos.id").alias("id"),
+        col("cryptos.symbol").alias("symbol"),
+        col("cryptos.name").alias("name"),
+        col("cryptos.current_price").alias("current_price"),
+        col("cryptos.market_cap").alias("market_cap"),
+        col("cryptos.total_volume").alias("total_volume")
     )
 
-    # Write DataFrame to MySQL
+# Filter out invalid rows
+filtered_data = parsed_data.filter(col("id").isNotNull()).dropDuplicates()
+
+# Write data to MySQL
+def write_to_mysql(batch_df, batch_id):
+    print(f"Processing Batch ID: {batch_id}")
+    batch_df.show(truncate=False)
     try:
         batch_df.write.jdbc(
             url="jdbc:mysql://localhost:3306/crypto_data",
@@ -62,14 +62,13 @@ def write_to_mysql(batch_df, batch_id):
                 "driver": "com.mysql.cj.jdbc.Driver"
             }
         )
+        print(f"Batch {batch_id} successfully written to MySQL.")
     except Exception as e:
         print(f"Failed to write batch {batch_id} to MySQL: {e}")
 
-# Write stream to MySQL
-query = df.writeStream \
+query = filtered_data.writeStream \
     .foreachBatch(write_to_mysql) \
     .outputMode("append") \
     .start()
 
-# Await termination
 query.awaitTermination()
