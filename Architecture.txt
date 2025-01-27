@@ -1,32 +1,30 @@
                         +----------------+
-                        | Data Producers |
+                        | Data Producers | Fetch data via api 
                         +----------------+
-                                |
+                                | Provides data to kafka cluster
                                 v
                         +----------------+
-                        |  Kafka Cluster  |
+                        |  Kafka Cluster  | Streamlines the data
                         +----------------+
-                                |
+                                | Provides data to spark consumer
+                                v
+                    +-------------------------+
+                    | Data Consumers (PySpark) | Stores data for transformation layer
+                    +-------------------------+
+                                | Provides data to transformation layer
+                                v
+                    +-------------------------------+
+                    | Transformation Layer (PySpark) | Cleans/Transforms the data 
+                    +-------------------------------+
+                                | Provides data to data loading layer
                                 v
                     +--------------------------+
-                    |     Data Consumers       |
-                    |       (PySpark)          |
+                    |    Data Loading Layer     | Appends the data to Database
                     +--------------------------+
-                                |
+                                | 
                                 v
                     +--------------------------+
-                    |   Transformation Layer   |
-                    |        (PySpark)         |
-                    +--------------------------+
-                                |
-                                v
-                    +--------------------------+
-                    |    Data Loading Layer     |
-                    +--------------------------+
-                                |
-                                v
-                    +--------------------------+
-                    |  Database/Data Warehouse  |
+                    |  Database/Data Warehouse  | Stores data for visualization
                     +--------------------------+
                                 |
                                 v
