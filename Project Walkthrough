@@ -21,7 +21,7 @@ Data Extraction: Extract subsets of data from the database for in-depth analysis
 Analysis and Reporting: Use Pandas for statistical analysis, generating reports, and preparing data for visualization.
 Data Visualization:
 
-Grafana: Connect Grafana to the database for real-time dashboards and visualizations of key metrics and trends.
+PowerBI: Connect PowerBI to the database for real-time dashboards and visualizations of key metrics and trends.
 Management Interface with Django:
 
 Django Application: Develop a Django web application to:
