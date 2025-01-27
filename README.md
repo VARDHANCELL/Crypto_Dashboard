@@ -82,16 +82,6 @@ This project builds an ETL (Extract, Transform, Load) pipeline to process real-t
             Cryptocurrency trends.
             Market caps and prices of the top 100 coins.
             Real-time updates with the processed_at timestamp.
-            
-
-## Edit:
-├── src
-│   ├── kafka_producer.py        # Producer script
-│   ├── data_transformation.py   # Spark transformation script
-│   ├── config.py                # Configuration settings
-│
-├── README.md                    # Documentation
-└── mysql-connector-java.jar     # MySQL JDBC Driver
 
 ## Future Improvements:
 Add more data sources for diversified cryptocurrency insights.
