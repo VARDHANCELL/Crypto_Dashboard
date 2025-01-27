@@ -1,53 +1,32 @@
-# Final Architecture Overview:
+Project Architecture
+Data Ingestion via REST API:
 
-**Data Ingestion:**
+REST API Endpoints: Create or use existing REST API endpoints to collect data from various sources. These APIs will provide data that needs to be ingested into Kafka.
+Kafka Producer: Develop a Kafka producer that consumes data from these REST APIs and publishes it to Kafka topics. This producer can be a standalone service or part of a broader data ingestion service.
+Kafka Integration:
 
-  1. Source Data: Data is ingested from various sources (e.g., APIs, databases, flat files).
-  2. Kafka: Acts as a message broker that receives and queues the incoming data, ensuring real-time data ingestion and providing resilience.
+Kafka Topics: Data from REST APIs is streamed into Kafka topics. Kafka acts as the message broker, handling real-time data streams.
+ETL Tool Integration:
 
-**Data Processing:**
+ETL Orchestration: Use an ETL tool (e.g., Apache Airflow) to manage and automate the ETL pipeline. The ETL tool will schedule and orchestrate tasks related to data ingestion, processing, and analysis.
+DAGs/Workflows: Define workflows to include Kafka data ingestion, PySpark processing, data loading, and reporting.
+Data Processing with PySpark:
 
-  1. Kafka Consumer (PySpark): PySpark serves as the consumer for Kafka, retrieving data in real-time or batch from Kafka topics.
-  2. PySpark: Processes the data (e.g., filtering, aggregation, transformation).
+Kafka Consumer: PySpark jobs consume data from Kafka topics.
+Transformation: Perform data transformations, aggregations, and other processing tasks in PySpark.
+Storage: Load the processed data into a relational or NoSQL database.
+Detailed Analysis with Pandas:
 
-**Data Storage:**
-
-  1. Database (Relational/NoSQL): Processed data from PySpark is loaded into a database like PostgreSQL, MySQL, or MongoDB for structured or semi-structured storage.
-
-**Data Visualization:**
-
-  1. PowerBI: Connects to the database where the processed data is stored. Grafana visualizes the data through dashboards, enabling real-time monitoring and analysis of the data.
-
-**Management Interface:**
-
-    1. Django Application: The Django app acts as a management interface for the entire pipeline. Users can start/stop ETL jobs, monitor pipeline status, view logs, and manage configurations.
-    2. Data Analysis Tools: Basic data analysis capabilities using Pandas, Numpy, and visualization with Plotly can also be integrated into the Django app for more detailed exploration.
-
-# Detailed Workflow
-
-**Data Ingestion:**
-
-Data is fed into Kafka, where each data source sends its data to a specific Kafka topic.
-Kafka to PySpark:
-
-PySpark acts as a Kafka consumer, subscribing to relevant Kafka topics and pulling data for processing.
-PySpark processes the data, applying necessary transformations like filtering, aggregation, and enrichment.
-Data Storage:
-
-After processing, the data is loaded into a database. The choice of the database depends on your data’s structure and access patterns.
-The processed data is then stored in a way that allows efficient querying and reporting.
+Data Extraction: Extract subsets of data from the database for in-depth analysis using Pandas.
+Analysis and Reporting: Use Pandas for statistical analysis, generating reports, and preparing data for visualization.
 Data Visualization:
 
-PowerBI is configured to connect to the database where the processed data resides.
-Dashboards are set up in Grafana to visualize key metrics, trends, and insights from the data, providing real-time monitoring of the ETL pipeline's output.
-Management Interface:
+Grafana: Connect Grafana to the database for real-time dashboards and visualizations of key metrics and trends.
+Management Interface with Django:
 
-The Django app provides a user interface for controlling and monitoring the ETL process.
-Users can view the status of Kafka topics, PySpark jobs, database entries, and visualize data through embedded dashboards or direct links to Grafana.
-The Django app can also offer controls to manage the pipeline, such as triggering specific jobs, handling errors, and managing schedules.
-Considerations for Implementation
-Data Consistency: Ensure that data is consistently processed and stored, especially when dealing with real-time data streams.
-Scalability: Kafka and PySpark are inherently scalable, but ensure your database and Grafana setup can also handle increased loads as your data volume grows.
-Security: Implement authentication and authorization across all components (Kafka, PySpark, Django, Grafana) to protect sensitive data.
-Error Handling and Logging: Set up comprehensive logging and error-handling mechanisms in PySpark and Django to track and troubleshoot any issues in the ETL pipeline.
-This architecture provides a strong foundation for building a scalable, real-time ETL pipeline with robust monitoring and control features, making it well-suited for both operational and analytical workloads.
+Django Application: Develop a Django web application to:
+Manage and monitor the ETL pipeline.
+Start/stop ETL jobs.
+View logs and pipeline status.
+Run and display Pandas-based reports.
+REST API Integration: If needed, expose additional REST API endpoints from Django for external applications to interact with the data or control the ETL pipeline.
