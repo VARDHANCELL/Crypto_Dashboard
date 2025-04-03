@@ -1,0 +1,6 @@
+commands:
+start_zookeeper: "bin/zookeeper-server-start.sh config/zookeeper.properties"
+start_kafka: "bin/kafka-server-start.sh config/server.properties"
+run_script_1: "python backend_script_1.py"
+run_script_2: "python backend_script_2.py"
+run_script_3: "python backend_script_3.py"
